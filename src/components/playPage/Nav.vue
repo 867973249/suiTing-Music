@@ -34,7 +34,7 @@
     align-items: center;
 
     .exit {
-      margin: 0 6px;
+      margin: 0 20px;
       cursor: pointer;
     }
     .userName {
@@ -55,7 +55,7 @@
   position: relative;
   width: 30px;
   height: 30px;
-  margin-right: 10px;
+  margin-right: 20px;
   cursor: pointer;
   .avator {
     width: 30px;

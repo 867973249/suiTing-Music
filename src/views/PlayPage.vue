@@ -53,7 +53,7 @@
   min-height: 300px;
 }
 .footer{
-  height: 80px;
+  height: 13%;
 }
 </style>
 <script>
