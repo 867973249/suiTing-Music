@@ -1,15 +1,16 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import IndexMain from '../views/IndexMain.vue'
+// import IndexMain from '../views/IndexMain.vue'
+import ChatRoom from '../views/ChatRoom.vue'
 import PlayPage from '../views/PlayPage.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/index',
-    name: 'home',
-    component: IndexMain
+    path: '/chat',
+    name: 'chat',
+    component: ChatRoom
   },
   {
       path: '/',
