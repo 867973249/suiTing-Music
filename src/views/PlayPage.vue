@@ -45,14 +45,14 @@
 }
 
 .center {
-  /* width: 1000px; */
-  margin: 0 200px;
+  width: 80%;
+  margin: 0 auto;
   padding-right: 30px;
   flex-grow: 1;
   flex-shrink: 1;
   min-height: 300px;
 }
-.footer{
+.footer {
   height: 13%;
 }
 </style>
