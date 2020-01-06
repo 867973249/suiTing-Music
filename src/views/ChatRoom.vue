@@ -24,6 +24,13 @@
   </div>
 </template>
 <style scoped>
+.triangle {
+  width: 0;
+  height: 0;
+  border-right: 50px solid transparent;
+  border-left: 50px solid transparent;
+  border-bottom: 50px solid red;
+}
 .container {
   width: 400px;
   height: 350px;
@@ -109,7 +116,20 @@
   padding: 5px 8px;
   border-radius: 8px;
   line-height: 24px;
-  font-size: 15px
+  font-size: 15px;
+  position: relative;
+}
+.content_item > .message_box::after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid white;
+  border-right: 5px solid #eadddd;
+  left: -5px;
+  top: 8px;
 }
 /* slef_message */
 .self_message > .avator {
@@ -121,8 +141,14 @@
   margin-left: 0;
   float: right;
 }
+.self_message > .message_box::after {
+  border-right: 0px;
+  border-left: 5px solid #eadddd;
+  left: inherit;
+  right: -5px;
+}
 .self_message::after {
-  content: '';
+  content: "";
   display: block;
   clear: both;
 }
@@ -143,31 +169,88 @@ export default {
   data() {
     return {
       messgeList: [
-        { msg: "xxxxxx", is_slef: false },
-        { msg: "是不是是是不是是是不是是是不是是是不是是是不是是是不是是是不是是是不是是", is_slef: true },
-        { msg: "xxxxx", is_slef: false },
-        { msg: "xxxxx", is_slef: false }
+        // { msg: "xxxxxx", is_slef: false },
+        // {
+        //   msg:
+        //     "是不是是是不是是是不是是是不是是是不是是是不是是是不是是是不是是是不是是",
+        //   is_slef: true
+        // },
+        // { msg: "xxxxx", is_slef: false },
+        // { msg: "xxxxx", is_slef: false }
       ],
-      textarea: ""
+      textarea: "",
+      ws: null,
+      username: "",
+      userid: 1,
+      avator: ""
     };
   },
   methods: {
     sendMssage() {
-    //   var reg = new RegExp("\n", "g");
-    //   setTimeout(() => {
-    //   }, 0);
-      window.console.log(this.textarea);
+      window.console.log(this.textarea == '');
+      window.console.log(this.ws.readyState)
+      if(this.textarea==''){
+        return;
+      }
+      this.ws.send(
+        JSON.stringify({
+          username: this.username,
+          userid: this.userid,
+          text: this.textarea,
+          type: "chat"
+        })
+      );
       this.textarea = "";
+    },
+    /**滚动条定位到底部 */
+    scrollBottom: function(box, boxChild) {
+      this.$nextTick(() => {
+        //滚动的DOM，一般是父级
+        //子级
+        box.scrollTop = boxChild.offsetHeight //- box.offsetHeight;
+      });
     }
   },
-  created:function(){
-      
+  created: function() {
+    //请求数据
+    let _this = this;
+    this.username = "测试用户";
+    this.userid = parseInt(Math.random() * 100);
+    // this.avator=''
+    this.ws = new WebSocket("ws://182.92.232.131:8000");
+    this.ws.open = function() {
+      _this.ws.send(
+        JSON.stringify({
+          name: this.username,
+          type: "setname"
+        })
+      );
+    }; 
+    
+    this.ws.onopen=function () {
+        window.console.log("socket has been opened ,readyState:"+this.ws.readyState);
+    };
+    this.ws.onreadyStateChange=function(e){
+      window.console.log(e)
+    }
+    this.ws.onmessage = function(e) {
+      let nowMessge = JSON.parse(e.data);
+      window.console.log(nowMessge);
+      _this.messgeList.push({
+        current_user: nowMessge.name,
+        msg: nowMessge.text,
+        is_slef: nowMessge.id === _this.userid
+      });
+      _this.scrollBottom(
+        document.querySelector(".center_view"),
+        document.querySelector(".center_content")
+      );
+    };
   },
   mounted: function() {
     var input = document.querySelector(".el-textarea__inner");
     var _this = this;
     input.onkeypress = function(e) {
-      window.console.log(e.keyCode);
       if (e.keyCode != 10) {
         return;
       }
