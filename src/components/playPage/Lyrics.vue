@@ -82,7 +82,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style >
 .lyrics_box {
   height: 100%;
   padding: 80px 60px;

@@ -4,6 +4,7 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import router from './router'
 import store from './store'
+import './common/css/font_1473713_wgsxokvw5zr/iconfont.css'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)

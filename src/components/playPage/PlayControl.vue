@@ -8,8 +8,8 @@
     <div class="control_box_center">
       <div style="width:100%">
         <div class="playing_info">
-          <span>{{"可惜没如果"}}</span> -
-          <span>{{"林俊杰"}}</span>
+          <span>{{playing_music.song}}</span> -
+          <span>{{playing_music.singer}}</span>
         </div>
         <el-slider
           class="progress_style"
@@ -20,13 +20,18 @@
       </div>
     </div>
     <div class="control_box_right">
-      <span class="btn_big_style_list"></span>
-      <span class="btn_big_like"></span>
+      <span :class="'btn_big_style_'+loopWay" @click="toggleLoopWay"></span>
+      <span :class="'btn_big_like '+(onLike?'btn_big_like_like':'')" @click="toggleLike"></span>
       <span class="btn_big_down"></span>
       <span class="mod_btn_comment"></span>
-      <span class="btn_big_only" @click="toggleContent"></span>
+      <span :class="'btn_big_only '+(onOnly?'':'btn_big_only--on')" @click="toggleContent"></span>
       <!-- btn_big_only--on -->
-      <span class="btn_big_voice" style="position:relative">
+      <span
+        :class="'btn_big_voice '+(onVolume?'':'btn_big_voice--on')"
+        @click.self="toggleVolume"
+        style="position:relative"
+      >
+       <!-- @click.capture.stop='' 捕获期触发，停止事件传递-->
         <el-slider
           class="progress_style sound"
           v-model="sound"
@@ -38,12 +43,12 @@
   </div>
 </template>
 
-<style  >
+<style >
 #playControl {
   height: 100%;
   /* background-color: #ccc; */
-  width: 80%;
-  margin: 0 auto;
+  width: 92%;
+  /* margin: 0 auto; */
   display: flex;
   justify-content: space-between;
 }
@@ -70,7 +75,7 @@
   height: 29px;
   background-position: 0 0;
 }
-.btn_big_play--pause{
+.btn_big_play--pause {
   background-position: -30px 0;
 }
 .btn_big_next {
@@ -78,16 +83,15 @@
   height: 20px;
   background-position: 0 -52px;
 }
-.btn_big_style_list {
-  width: 26px;
-  height: 25px;
-  background-position: 0 -205px;
-}
+
 .btn_big_like {
   width: 23px;
   height: 21px;
   background-position: 0 -96px;
   /* background-position: -30px -96px; */
+}
+.btn_big_like_like {
+  background-position: -30px -96px;
 }
 .btn_big_down {
   width: 22px;
@@ -122,7 +126,30 @@
   height: 21px;
   background-position: 0 -144px;
 }
+.btn_big_voice--on {
+  background-position: 0 -182px;
+}
 
+.btn_big_style_list {
+  width: 26px;
+  height: 25px;
+  background-position: 0 -205px;
+}
+.btn_big_style_order {
+  width: 26px;
+  height: 20px;
+  background-position: 0 -260px;
+}
+.btn_big_style_random {
+  width: 26px;
+  height: 19px;
+  background-position: 0 -74px;
+}
+.btn_big_style_single {
+  width: 26px;
+  height: 25px;
+  background-position: 0 -232px;
+}
 .btn_big_down,
 .btn_big_like,
 .btn_big_next,
@@ -171,6 +198,8 @@
 .playing_info {
   opacity: 0.8;
   user-select: none;
+}
+.playing_info > span{
   cursor: pointer;
 }
 .playing_info > span:hover {
@@ -205,7 +234,11 @@ export default {
     return {
       progress: 0,
       sound: 60,
-      playing:false
+      playing: false,
+      onOnly: true,
+      onVolume: true,
+      loopWay: "list",
+      onLike: false
     };
   },
   methods: {
@@ -217,18 +250,60 @@ export default {
       window.console.log("音量：", sound, this.sound);
       // this.progress=progress;
     },
-    toggleContent: function(e) {
+    toggleContent: function() {
       //切换icon
       // e.currentTarget.toggle('btn_big_only--on')
-      var classArray=e.currentTarget.classList;
-      if (classArray.contains("btn_big_only--on")) {
-        classArray.remove("btn_big_only--on");
-      } else {
-        classArray.add("btn_big_only--on");
+      // var classArray = e.currentTarget.classList;
+      // if (classArray.contains("btn_big_only--on")) {
+      //   classArray.remove("btn_big_only--on");
+      // } else {
+      //   classArray.add("btn_big_only--on");
+      // }
+      this.onOnly = !this.onOnly;
+      this.$emit('toggleLrc');
+    },
+    toggleVolume: function() {
+      // var classArray = e.currentTarget.classList;
+      // window.console.log(classArray)
+      // if (classArray.contains("btn_big_voice--on")) {
+      //   classArray.remove("btn_big_voice--on");
+      // } else {
+      //   classArray.add("btn_big_voice--on");
+      // }
+      this.onVolume = !this.onVolume;
+    },
+    toggleLoopWay: function() {
+      switch (this.loopWay) {
+        case "list":
+          this.loopWay = "order";
+          break;
+        case "order":
+          this.loopWay = "random";
+          break;
+        case "random":
+          this.loopWay = "single";
+          break;
+        case "single":
+          this.loopWay = "list";
+          break;
+        default:
+          break;
       }
     },
-    playChange:function(){
-      this.playing=!this.playing;
+    toggleLike: function() {
+      this.onLike = !this.onLike;
+    },
+    playChange: function() {
+      this.playing = !this.playing;
+    },
+    stopPop:function(event){
+      event.preventDefault();
+       event.stopPropagation();
+    }
+  },
+  computed:{
+    playing_music:function () {
+      return this.$store.state.playing_music;
     }
   }
 };

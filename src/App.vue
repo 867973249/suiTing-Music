@@ -12,6 +12,13 @@
 *{
   margin: 0;
   padding: 0;
+  color: rgba(225, 225, 225, 0.8);
+}
+ul,li{
+  list-style: none;
+}
+a{
+  text-decoration: none;
 }
 body, html,#app{
     height: 100%;
@@ -22,7 +29,8 @@ body, html,#app{
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
-    background-color: #fff;
+    background-color:transparent
+    //  rgba($color:transparent, $alpha: 0.1);
 }
 
 /* 滚动槽 */
@@ -36,7 +44,7 @@ body, html,#app{
 ::-webkit-scrollbar-thumb {
     border-radius: 5px;
     width: 8px;
-    background: rgb(128, 3, 3);
+    background: rgba($color: #fff, $alpha: 0.2);
 }
 
 </style>

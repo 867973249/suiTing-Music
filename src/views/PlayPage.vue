@@ -3,13 +3,16 @@
     <Nav></Nav>
     <div class="center">
       <Lyrics v-if="show_lrc"></Lyrics>
+      <PlayList v-else></PlayList>
     </div>
     <div class="footer">
-      <PlayControl></PlayControl>
+      <PlayControl @toggleLrc='toggleLrc'></PlayControl>
     </div>
     <div class="bg_blur"></div>
     <div class="bg_player"></div>
+    <div class="music_play"></div>
   </div>
+  <!--  -->
 </template>
 <style scoped>
 #main {
@@ -24,7 +27,7 @@
   height: 100%;
   width: 100%;
   position: absolute;
-  background-image: url("https://y.gtimg.cn/music/photo_new/T002R300x300M000003nkrW42K3FLd.jpg?max_age=2592000");
+  background-image: url(../common/img/test.jpg);
   background-position: 50%, 50%;
   background-size: 100%, 100%;
   background-repeat: no-repeat;
@@ -45,32 +48,44 @@
 }
 
 .center {
-  width: 80%;
+  width: 92%;
   margin: 0 auto;
   padding-right: 30px;
   flex-grow: 1;
   flex-shrink: 1;
   min-height: 300px;
+  height: 80%;
 }
 .footer {
-  height: 13%;
+  height: 16%;
 }
 </style>
 <script>
 import Nav from "../components/playPage/Nav.vue";
 import Lyrics from "../components/playPage/Lyrics.vue";
 import PlayControl from "../components/playPage/PlayControl.vue";
-
+import PlayList from "../components/playPage/PlayList.vue";
+// import MusicPlay from "../components/playPage/MusicPlay.vue"
 export default {
   data() {
     return {
-      show_lrc: true
+      show_lrc: false
     };
   },
   components: {
     Nav,
     Lyrics,
-    PlayControl
+    PlayControl,
+    PlayList,
+  },
+  methods:{
+    toggleLrc:function(){
+      this.show_lrc=!this.show_lrc;
+    }
+  },
+  created:function () {
+    this.$store.state.playing_music=this.$store.state.musicList[0];
+    window.console.log(this.$store.state.playing_music)
   }
 };
 </script>
