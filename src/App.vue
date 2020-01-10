@@ -49,6 +49,7 @@ body, html,#app{
 
 </style>
 <script>
+
 export default {
   data(){
     return{

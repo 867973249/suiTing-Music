@@ -1,9 +1,12 @@
 <template>
   <div id="playControl">
     <div class="control_box_left">
-      <span class="btn_big_prev"></span>
-      <span :class="'btn_big_play '+ (this.playing?'btn_big_play--pause':'') " @click="playChange"></span>
-      <span class="btn_big_next"></span>
+      <span class="btn_big_prev" @click="prevMusic"></span>
+      <span
+        :class="'btn_big_play '+ (this.playing_music.isplay?'btn_big_play--pause':'') "
+        @click="playChange"
+      ></span>
+      <span class="btn_big_next" @click="nextMusic"></span>
     </div>
     <div class="control_box_center">
       <div style="width:100%">
@@ -31,7 +34,7 @@
         @click.self="toggleVolume"
         style="position:relative"
       >
-       <!-- @click.capture.stop='' 捕获期触发，停止事件传递-->
+        <!-- @click.capture.stop='' 捕获期触发，停止事件传递-->
         <el-slider
           class="progress_style sound"
           v-model="sound"
@@ -199,7 +202,7 @@
   opacity: 0.8;
   user-select: none;
 }
-.playing_info > span{
+.playing_info > span {
   cursor: pointer;
 }
 .playing_info > span:hover {
@@ -234,7 +237,6 @@ export default {
     return {
       progress: 0,
       sound: 60,
-      playing: false,
       onOnly: true,
       onVolume: true,
       loopWay: "list",
@@ -251,25 +253,10 @@ export default {
       // this.progress=progress;
     },
     toggleContent: function() {
-      //切换icon
-      // e.currentTarget.toggle('btn_big_only--on')
-      // var classArray = e.currentTarget.classList;
-      // if (classArray.contains("btn_big_only--on")) {
-      //   classArray.remove("btn_big_only--on");
-      // } else {
-      //   classArray.add("btn_big_only--on");
-      // }
       this.onOnly = !this.onOnly;
-      this.$emit('toggleLrc');
+      this.$emit("toggleLrc");
     },
     toggleVolume: function() {
-      // var classArray = e.currentTarget.classList;
-      // window.console.log(classArray)
-      // if (classArray.contains("btn_big_voice--on")) {
-      //   classArray.remove("btn_big_voice--on");
-      // } else {
-      //   classArray.add("btn_big_voice--on");
-      // }
       this.onVolume = !this.onVolume;
     },
     toggleLoopWay: function() {
@@ -294,17 +281,80 @@ export default {
       this.onLike = !this.onLike;
     },
     playChange: function() {
-      this.playing = !this.playing;
+      this.$store.state.playing_music.isplay = !this.playing_music.isplay;
+      if (this.playing_music.isplay) {
+        this.$store.state.play_audio.play();
+      } else {
+        this.$store.state.play_audio.pause();
+      }
     },
-    stopPop:function(event){
+    stopPop: function(event) {
       event.preventDefault();
-       event.stopPropagation();
+      event.stopPropagation();
+    },
+    prevMusic() {
+      // window.console.log(this.playing_music);
+      this.switchMusic("prev");
+    },
+    nextMusic() {
+      this.switchMusic("next");
+    },
+    switchMusic(method) {
+      let musicList = this.$store.state.musicList;
+      let isNext = method == "next" ? true : false;
+      let nowIndex = musicList.findIndex(item => item === this.playing_music);
+      window.console.log(musicList, nowIndex);
+      switch (this.loopWay) {
+        case "list":
+          if (isNext) {
+            nowIndex = nowIndex + 1;
+          } else {
+            nowIndex = nowIndex - 1;
+          }
+          break;
+        case "order":
+          if (isNext) {
+            nowIndex = nowIndex + 1;
+          } else {
+            nowIndex = nowIndex - 1;
+          }
+          break;
+        case "random":
+          nowIndex = Math.floor(Math.random(0, 1) * musicList.length);
+          break;
+        case "single":
+          if (isNext) {
+            nowIndex = nowIndex + 1;
+          } else {
+            nowIndex = nowIndex - 1;
+          }
+          break;
+        default:
+          break;
+      }
+      if (nowIndex >= musicList.length) {
+        nowIndex = 0;
+      } else if (nowIndex < 0) {
+        nowIndex = musicList.length - 1;
+      }
+
+      this.$store.state.playing_music.isplay = false;
+      musicList[nowIndex].isplay = true;
+      this.$store.state.playing_music = musicList[nowIndex];
+
+      window.console.log(nowIndex, this.playing_music);
     }
   },
-  computed:{
-    playing_music:function () {
+  computed: {
+    playing_music: function() {
       return this.$store.state.playing_music;
     }
+  },
+  mounted: function() {
+
+  },
+  watch:{
+    
   }
 };
 </script>

@@ -27,7 +27,7 @@
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column label="歌曲">
             <template slot-scope="scope">
-              <div :class="'song_name column_item '+(scope.row.isplay?'is_playing':'')">
+              <div :class="'song_name column_item '+(scope.row.songid==playing_music.songid?'is_playing_music':'')+(scope.row.isplay?' is_playing':'') ">
                 {{ scope.row.song }}
                 <div class="icon_box">
                   <span :class="'iconfont icon-'+(scope.row.isplay?'zanting1':'icon-')" @click="changePlaying(scope.row)"></span>
@@ -56,23 +56,23 @@
     </div>
     <div class="rightBox">
       <div class="rightContent">
-        <img src="../../common/img/test.jpg" alt class="ablum" />
+        <img :src="playing_music.albumSrc" alt class="album" />
         <p>
           歌曲名：
-          <a href>{{'可惜没如果'}}</a>
+          <a href>{{playing_music.song}}</a>
         </p>
         <p>
           歌手名：
-          <a href>{{'林俊杰'}}</a>
+          <a href>{{playing_music.singer}}</a>
         </p>
         <p>
           专辑名：
-          <a href>{{'可惜没如果'}}</a>
+          <a href>{{playing_music.album}}</a>
         </p>
       </div>
 
       <div class="right_Lyrics">
-        <Lyrics class="mini_Lyrics"></Lyrics>
+        <Lyrics class="mini_Lyrics" :song_id="playing_music.songid"></Lyrics>
       </div>
     </div>
 
@@ -119,7 +119,7 @@
 .rightContent a:hover {
   color: #fff;
 }
-.ablum {
+.album {
   width: 186px;
   height: 186px;
   flex-shrink: 0;
@@ -295,6 +295,9 @@
 .el-table__row:hover .column_item .icon_box {
   display: block;
 }
+.is_playing_music.column_item .icon_box {
+  display: block;
+}
 .el-message-box {
   width: 300px;
   padding-bottom: 20px;
@@ -322,10 +325,20 @@ export default {
       showAlert: false
     };
   },
-  watch: {},
+  watch: {
+    tableData:function () {
+      window.console.log(this.$store.state.musicList)
+            let contentBox=document.querySelector(".data_table");
+      window.console.log(contentBox)
+      contentBox.scrollTop=0;
+    }
+  },
   computed: {
     tableData() {
       return this.$store.state.musicList;
+    },
+    playing_music:function () {
+      return this.$store.state.playing_music;
     }
   },
   methods: {
@@ -393,6 +406,18 @@ export default {
       return true;
     },
     changePlaying:function (item) {
+      if(this.playing_music==item){
+        this.$store.state.playing_music.isplay=!this.playing_music.isplay;
+        if(item.isplay){
+          this.$store.state.play_audio.play();
+        }else{
+          this.$store.state.play_audio.pause();
+        }
+      }else{
+        this.$store.state.playing_music.isplay=false;
+        this.$store.state.playing_music=item;
+        item.isplay=true;
+      }
       window.console.log('切换歌曲：',item)
     }
   }

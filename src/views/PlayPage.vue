@@ -6,11 +6,22 @@
       <PlayList v-else></PlayList>
     </div>
     <div class="footer">
-      <PlayControl @toggleLrc='toggleLrc'></PlayControl>
+      <PlayControl @toggleLrc="toggleLrc"></PlayControl>
     </div>
-    <div class="bg_blur"></div>
+    <div class="bg_blur" :style="'background-image: url('+playing_music.albumSrc+')'"></div>
     <div class="bg_player"></div>
-    <div class="music_play"></div>
+    <audio
+      id="music_play"
+      :src="playing_music.src"
+      autoplay="false"
+      controls
+      hidden='true'
+      width="0"
+      height="0"
+      @canplay="handleCanplay"
+      @play="beginPlay"
+      ref="autoplay"
+    ></audio>
   </div>
   <!--  -->
 </template>
@@ -27,7 +38,7 @@
   height: 100%;
   width: 100%;
   position: absolute;
-  background-image: url(../common/img/test.jpg);
+
   background-position: 50%, 50%;
   background-size: 100%, 100%;
   background-repeat: no-repeat;
@@ -59,6 +70,11 @@
 .footer {
   height: 16%;
 }
+#music_play {
+  width: 0;
+  height: 0;
+  display: none;
+}
 </style>
 <script>
 import Nav from "../components/playPage/Nav.vue";
@@ -66,26 +82,53 @@ import Lyrics from "../components/playPage/Lyrics.vue";
 import PlayControl from "../components/playPage/PlayControl.vue";
 import PlayList from "../components/playPage/PlayList.vue";
 // import MusicPlay from "../components/playPage/MusicPlay.vue"
+window.onready = function() {
+  document.querySelector("#music_play").play();
+  window.console.log(1);
+};
 export default {
   data() {
     return {
-      show_lrc: false
+      show_lrc: false,
+      music_play: null
     };
   },
   components: {
     Nav,
     Lyrics,
     PlayControl,
-    PlayList,
+    PlayList
   },
-  methods:{
-    toggleLrc:function(){
-      this.show_lrc=!this.show_lrc;
+  methods: {
+    toggleLrc: function() {
+      this.show_lrc = !this.show_lrc;
+    },
+    handleCanplay(e) {
+      this.$store.state.play_audio = e.target;
+      this.$nextTick(() => {
+        this.$refs.autoplay.play()
+      })
+    },
+    beginPlay(e){
+      let target=e.target;
+      let duration=target.duration
+      setInterval(() => {
+        console.log( (target.currentTime/duration) *100)
+      }, 1000);
     }
   },
-  created:function () {
-    this.$store.state.playing_music=this.$store.state.musicList[0];
-    window.console.log(this.$store.state.playing_music)
-  }
+  created: function() {
+    this.$store.state.playing_music = this.$store.state.musicList[0];
+    window.console.log(this.$store.state.playing_music);
+  },
+  computed: {
+    playing_music: function() {
+      return this.$store.state.playing_music;
+    },
+    play_audio: function() {
+      return this.$store.state.play_audio;
+    }
+  },
+  watch: {}
 };
 </script>
