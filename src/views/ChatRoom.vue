@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" style="color:#000">
     <div class="title">
       <span>迷你聊天室</span>
       <span class="hidden_box">-</span>
@@ -24,6 +24,9 @@
   </div>
 </template>
 <style scoped>
+*{
+  color: #000;
+}
 .triangle {
   width: 0;
   height: 0;
@@ -162,6 +165,7 @@
 .send_btn {
   padding: 8px 10px;
   margin-left: 10px;
+  color: #000;
 }
 </style>
 <script>

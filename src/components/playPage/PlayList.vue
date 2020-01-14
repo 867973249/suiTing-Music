@@ -27,10 +27,15 @@
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column label="歌曲">
             <template slot-scope="scope">
-              <div :class="'song_name column_item '+(scope.row.songid==playing_music.songid?'is_playing_music':'')+(scope.row.isplay?' is_playing':'') ">
+              <div
+                :class="'song_name column_item '+(scope.row.songid==playing_music.songid?'is_playing_music':'')+(scope.row.isplay?' is_playing':'') "
+              >
                 {{ scope.row.song }}
                 <div class="icon_box">
-                  <span :class="'iconfont icon-'+(scope.row.isplay?'zanting1':'icon-')" @click="changePlaying(scope.row)"></span>
+                  <span
+                    :class="'iconfont icon-'+(scope.row.isplay?'zanting1':'icon-')"
+                    @click="changePlaying(scope.row)"
+                  ></span>
                   <span class="iconfont icon-jiahao01"></span>
                   <span class="iconfont icon-fenxiang-"></span>
                 </div>
@@ -39,12 +44,19 @@
           </el-table-column>
           <el-table-column label="歌手" width="230">
             <template slot-scope="scope">
-              <a href class="singer_name column_item" :style="'color:'+(scope.row.isplay?'#fff':'')"> {{ scope.row.singer }}</a>
+              <a
+                href
+                class="singer_name column_item"
+                :style="'color:'+(scope.row.isplay?'#fff':'')"
+              >{{ scope.row.singer }}</a>
             </template>
           </el-table-column>
           <el-table-column label="时长" show-overflow-tooltip width="110">
             <template slot-scope="scope">
-              <div class="time_box column_item" :style="'color:'+(scope.row.isplay?'#fff':'')">{{ scope.row.time }}</div>
+              <div
+                class="time_box column_item"
+                :style="'color:'+(scope.row.isplay?'#fff':'')"
+              >{{ scope.row.time }}</div>
             </template>
           </el-table-column>
         </el-table>
@@ -181,7 +193,7 @@
   position: relative;
   padding-left: 3px;
 }
-.is_playing{
+.is_playing {
   color: #fff;
 }
 .is_playing::before {
@@ -216,7 +228,7 @@
   line-height: 36px;
   margin-right: 10px;
 }
-.data_table .iconfont.icon-zanting1{
+.data_table .iconfont.icon-zanting1 {
   font-size: 34px;
 }
 .data_table .icon_box {
@@ -326,18 +338,18 @@ export default {
     };
   },
   watch: {
-    tableData:function () {
-      window.console.log(this.$store.state.musicList)
-            let contentBox=document.querySelector(".data_table");
-      window.console.log(contentBox)
-      contentBox.scrollTop=0;
+    tableData: function() {
+      window.console.log(this.$store.state.musicList);
+      let contentBox = document.querySelector(".data_table");
+      window.console.log(contentBox.scrollTop);
+      contentBox.scrollTop = 0;
     }
   },
   computed: {
     tableData() {
       return this.$store.state.musicList;
     },
-    playing_music:function () {
+    playing_music: function() {
       return this.$store.state.playing_music;
     }
   },
@@ -362,19 +374,28 @@ export default {
         cancelButtonText: "取消",
         type: "info",
         center: true
-      }).then(() => {
-        //确定删除操作
-        for (let i = 0; i < this.selectList.length; i++) {
-          for (let j = 0; j < this.tableData.length; j++) {
-            if (this.selectList[i] == this.tableData[j]) {
-              this.$store.state.musicList.splice(j, 1);
-              break;
+      })
+        .then(() => {
+          //确定删除操作
+          let need_change_music = false;
+          for (let i = 0; i < this.selectList.length; i++) {
+            for (let j = 0; j < this.tableData.length; j++) {
+              if (this.selectList[i] == this.tableData[j]) {
+                this.$store.state.musicList.splice(j, 1);
+                break;
+              }
+            }
+            if (this.selectList[i] == this.$store.state.playing_music) {
+              need_change_music = true;
             }
           }
-        }
-      }).catch(() => {
-        window.console.log('取消操作')
-      });
+          if(need_change_music){
+            this.$emit('brotherHandler')
+          }
+        })
+        .catch(() => {
+          window.console.log("取消操作");
+        });
     },
     clearMusic() {
       this.$confirm("确定要清空列表吗？", "警告", {
@@ -382,12 +403,16 @@ export default {
         cancelButtonText: "取消",
         type: "warning",
         center: true
-      }).then(() => {
-        //确定清空操作
-        this.$store.state.musicList = [];
-      }).catch(() => {
-        window.console.log('取消操作')
-      });
+      })
+        .then(() => {
+          //确定清空操作
+          this.$store.state.musicList = [];
+          this.$store.state.playing_music.isplay=false;
+          this.$store.state.play_audio.src='';
+        })
+        .catch(() => {
+          window.console.log("取消操作");
+        });
     },
     canNext: function() {
       //判断有无操作元素，能否继续执行
@@ -405,20 +430,20 @@ export default {
       }
       return true;
     },
-    changePlaying:function (item) {
-      if(this.playing_music==item){
-        this.$store.state.playing_music.isplay=!this.playing_music.isplay;
-        if(item.isplay){
+    changePlaying: function(item) {
+      if (this.playing_music == item) {
+        this.$store.state.playing_music.isplay = !this.playing_music.isplay;
+        if (item.isplay) {
           this.$store.state.play_audio.play();
-        }else{
+        } else {
           this.$store.state.play_audio.pause();
         }
-      }else{
-        this.$store.state.playing_music.isplay=false;
-        this.$store.state.playing_music=item;
-        item.isplay=true;
+      } else {
+        this.$store.state.playing_music.isplay = false;
+        this.$store.state.playing_music = item;
+        item.isplay = true;
       }
-      window.console.log('切换歌曲：',item)
+      window.console.log("切换歌曲：", item);
     }
   }
 };

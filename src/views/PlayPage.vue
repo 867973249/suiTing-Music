@@ -3,10 +3,10 @@
     <Nav></Nav>
     <div class="center">
       <Lyrics v-if="show_lrc"></Lyrics>
-      <PlayList v-else></PlayList>
+      <PlayList v-else  @brotherHandler="brotherHandler"></PlayList>
     </div>
     <div class="footer">
-      <PlayControl @toggleLrc="toggleLrc"></PlayControl>
+      <PlayControl @toggleLrc="toggleLrc" ref="play_control" :now_progress="contorl_progress"></PlayControl>
     </div>
     <div class="bg_blur" :style="'background-image: url('+playing_music.albumSrc+')'"></div>
     <div class="bg_player"></div>
@@ -15,11 +15,13 @@
       :src="playing_music.src"
       autoplay="false"
       controls
-      hidden='true'
+      hidden="true"
       width="0"
       height="0"
       @canplay="handleCanplay"
       @play="beginPlay"
+      @pause="pausePlay"
+      @ended="endPlay"
       ref="autoplay"
     ></audio>
   </div>
@@ -90,7 +92,8 @@ export default {
   data() {
     return {
       show_lrc: false,
-      music_play: null
+      music_play: null,
+      contorl_progress: 0
     };
   },
   components: {
@@ -106,15 +109,27 @@ export default {
     handleCanplay(e) {
       this.$store.state.play_audio = e.target;
       this.$nextTick(() => {
-        this.$refs.autoplay.play()
-      })
+        this.$refs.autoplay.play();
+      });
     },
-    beginPlay(e){
-      let target=e.target;
-      let duration=target.duration
-      setInterval(() => {
-        console.log( (target.currentTime/duration) *100)
+    beginPlay(e) {
+      let target = e.target;
+      // let duration=target.duration
+      clearInterval(this.music_timer);
+      this.music_timer = setInterval(() => {
+        this.contorl_progress = (target.currentTime / target.duration) * 100;
       }, 1000);
+    },
+    pausePlay() {
+      clearInterval(this.music_timer);
+    },
+    endPlay(){
+      //切歌
+      clearInterval(this.music_timer);
+      this.$refs.play_control.nextMusic();
+    },
+    brotherHandler(){
+      this.$refs.play_control.nextMusic();
     }
   },
   created: function() {

@@ -11,8 +11,14 @@
     <div class="control_box_center">
       <div style="width:100%">
         <div class="playing_info">
-          <span>{{playing_music.song}}</span> -
-          <span>{{playing_music.singer}}</span>
+          <div>
+            <span>{{playing_music.song}}</span> -
+            <span>{{playing_music.singer}}</span>
+          </div>
+          <div class="time_box">
+            {{this.currentTime}}/{{playing_music.time}}
+            <!-- {{time}} -->
+          </div>
         </div>
         <el-slider
           class="progress_style"
@@ -34,7 +40,9 @@
         @click.self="toggleVolume"
         style="position:relative"
       >
-        <!-- @click.capture.stop='' 捕获期触发，停止事件传递-->
+        <!-- @click.capture.stop='' 捕获期触发，停止事件传递
+        click.self='' 点击本身才会触发
+        -->
         <el-slider
           class="progress_style sound"
           v-model="sound"
@@ -199,14 +207,20 @@
   /* background-color: rgba(225,225,225,.8); */
 }
 .playing_info {
-  opacity: 0.8;
+  /* opacity: 0.8; */
   user-select: none;
+  height: 21px;
+  display: flex;
+  justify-content: space-between;
 }
-.playing_info > span {
+.playing_info span {
   cursor: pointer;
 }
-.playing_info > span:hover {
+.playing_info span:hover {
   color: #fff;
+}
+.playing_info .time_box {
+  padding-right: 30px;
 }
 .control_box_left {
   width: 200px;
@@ -243,14 +257,15 @@ export default {
       onLike: false
     };
   },
+  props: ["now_progress"],
   methods: {
     progress_change: function(progress) {
       window.console.log("进度：", progress, this.progress);
-      // this.progress=progress;
+      this.$store.state.play_audio.currentTime =
+        (this.progress * this.$store.state.play_audio.duration) / 100;
     },
     sound_change: function(sound) {
       window.console.log("音量：", sound, this.sound);
-      // this.progress=progress;
     },
     toggleContent: function() {
       this.onOnly = !this.onOnly;
@@ -348,13 +363,37 @@ export default {
   computed: {
     playing_music: function() {
       return this.$store.state.playing_music;
+    },
+    play_audio: function() {
+      return this.$store.state.play_audio;
+    },
+    currentTime:function () {
+      let time=new Date(this.progress/100*this.play_audio.duration*1000);
+      let res='';
+      if(time.getMinutes()<10){
+        res+=('0'+time.getMinutes());
+      }else{
+        res+=time.getMinutes();
+      }
+      res+=':'
+      if(time.getSeconds()<10){
+        res+=('0'+time.getSeconds());
+      }else{
+        res+=time.getSeconds();
+      }
+        console.log(res);
+      // if(res=='NaN:NaN'){
+      //   return '00:00'
+      // }
+      return res;
     }
   },
-  mounted: function() {
-
-  },
-  watch:{
-    
+  mounted: function() {},
+  watch: {
+    now_progress: function() {
+      // console.log(this.now_progress);
+      this.progress = this.now_progress;
+    }
   }
 };
 </script>
