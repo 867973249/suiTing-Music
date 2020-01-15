@@ -9,19 +9,23 @@
         @mousemove="mouse_move"
         @mouseleave="mouse_leave"
       >
-        <p class="lyric_item" v-for="(value,index) in lyricArray" v-bind:key="index">{{value}}</p>
+        <p :class="'lyric_item '+((index==2)?'play_on':'')"  v-for="(value,index) in lyricArray" v-bind:key="index">{{value.content}}</p>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-var lyricStr =
-  " ,你听不到我的声音,他脱口而出是你姓名,小确定我要遇见你,就像曾经交换过眼睛,我好想在哪见过你,我好像在哪见过你";
+//var lyricStr =
+//  " ,你听不到我的声音,他脱口而出是你姓名,小确定我要遇见你,就像曾经交换过眼睛,我好想在哪见过你,我好像在哪见过你";
 export default {
   data: function() {
     return {
-      lyricArray: lyricStr.split(","),
+      lyricArray: [{
+          time:0,
+          content:""
+        }],
+      //lyricStr.split(","),
       //['',"xxxxxxxxxxxxx", "xxxxxxxxxxxxx", "xxxxxxxxxxxxx","xxxxxxxxxxxxx", "xxxxxxxxxxxxx"],
       //歌词数据
       move_flag: false,
@@ -32,7 +36,34 @@ export default {
       lyric_offset_height: 2000
     };
   },
+  created:function(){
+    this.getLyrics();
+  },
   methods: {
+    getLyrics(){
+      let list=[{
+          time:0.2,
+          content:"执念 - 南征北战NZBZ"
+        },{
+          time:0.8,
+          content:"《唐人街探案》网剧主题曲片头曲"
+        },{
+          time:1.73,
+          content:"词：南征北战NZBZ"
+        },{
+          time:3.02,
+          content:"曲：南征北战NZBZ"
+        },{
+          time:7.68,
+          content:"弦乐编写：侯湃"
+        },{
+          time:9.97,
+          content:"xxxxxxxxxxxxx"
+        }
+      ];
+      this.lyricArray.push(...list);
+      console.log(this.lyricArray)
+    },
     mouse_down: function(e) {
       // e.currentTarget 获取绑定事件的元素
       this.move_flag = true;
@@ -127,5 +158,9 @@ export default {
 
 #lyrics_content > p.play {
   color: #31c27c;
+}
+
+.play_on{
+  color:#31c27c!important;
 }
 </style>
