@@ -8,8 +8,13 @@
         @mouseup="mouse_up"
         @mousemove="mouse_move"
         @mouseleave="mouse_leave"
+
       >
-        <p :class="'lyric_item '+((index==2)?'play_on':'')"  v-for="(value,index) in lyricArray" v-bind:key="index">{{value.content}}</p>
+        <p
+          :class="'lyric_item '+((index==now_lyric_index)?'play_on':'')"
+          v-for="(value,index) in lyricArray"
+          v-bind:key="index"
+        >{{value.content}}</p>
       </div>
     </div>
   </div>
@@ -21,48 +26,65 @@
 export default {
   data: function() {
     return {
-      lyricArray: [{
-          time:0,
-          content:""
-        }],
-      //lyricStr.split(","),
-      //['',"xxxxxxxxxxxxx", "xxxxxxxxxxxxx", "xxxxxxxxxxxxx","xxxxxxxxxxxxx", "xxxxxxxxxxxxx"],
-      //歌词数据
+      lyricArray: [
+         //歌词数据
+        {
+          time: 0,
+          content: ""
+        }
+      ],
+     
       move_flag: false,
       content_top: 0,
       move_current: undefined,
       move_timer: undefined,
       pre_timer: undefined,
-      lyric_offset_height: 2000
+      lyric_offset_height: 2000,
+      lyric_reg: {
+        _regTi: /\[ti:(.+)\]/,
+        _regAr: /\[ar:(.+)\]/,
+        _regAl: /\[al:(.+)\]/,
+        _regBy: /\[by:(.+)\]/,
+        _regOffset: /\[offset:.+\]/,
+        _regTime: /\[\d+:\d+(\.\d+)?\]/g
+      },
+      now_lyric_index:1
     };
   },
-  created:function(){
+  created: function() {
     this.getLyrics();
   },
   methods: {
-    getLyrics(){
-      let list=[{
-          time:0.2,
-          content:"执念 - 南征北战NZBZ"
-        },{
-          time:0.8,
-          content:"《唐人街探案》网剧主题曲片头曲"
-        },{
-          time:1.73,
-          content:"词：南征北战NZBZ"
-        },{
-          time:3.02,
-          content:"曲：南征北战NZBZ"
-        },{
-          time:7.68,
-          content:"弦乐编写：侯湃"
-        },{
-          time:9.97,
-          content:"xxxxxxxxxxxxx"
-        }
-      ];
-      this.lyricArray.push(...list);
-      console.log(this.lyricArray)
+    getLyrics() {
+      //获取歌词文件，渲染到页面
+      this.Axios({
+        methods: "get",
+        url: "http://182.92.232.131:8001/static/lrc/kxmrg.lrc"
+      })
+        .then(respone => {
+          let data;
+          if (respone.data.split("\n").length > 1) {
+            data = respone.data.split("\n");
+          } else {
+            data = respone.data.split("\r\n");
+          }
+          let that = this;
+          data.forEach((el) => {
+            let time = el.match(that.lyric_reg._regTime);
+            if (time != null) {
+              that.lyricArray.push({
+                time: that.getTime(time[0]),
+                content: el.substring(time[0].length)
+              });
+            }
+          });
+          console.log(this.lyricArray);
+          // this.lyricArray.push(...list);
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+      console.log(this.lyricArray);
     },
     mouse_down: function(e) {
       // e.currentTarget 获取绑定事件的元素
@@ -84,7 +106,7 @@ export default {
         return;
       }
       this.move_timer = setTimeout(() => {
-        window.console.log(this.move_current, e.clientY);
+        console.log(this.move_current, e.clientY);
 
         var top = this.content_top + e.clientY - this.move_current;
         this.move_current = e.clientY;
@@ -99,6 +121,14 @@ export default {
         clearTimeout(this.move_timer);
         this.pre_timer = this.move_timer;
       }, 15);
+    },
+    getTime: function(timeStr) {
+      //将时间转换为秒数
+      timeStr = timeStr.substring(1, timeStr.length - 1);
+      let time = timeStr.split(":");
+      time = time[0] * 60 + parseFloat(time[1]);
+      console.log(time);
+      return time;
     }
   },
   computed: {
@@ -108,12 +138,9 @@ export default {
       var top = this.content_top;
       if (top > 0) {
         top = 0;
-        // this.content_top=top;
       } else if (top < -this.lyric_offset_height) {
         top = -this.lyric_offset_height;
-        // this.content_top=top;
       }
-
       return top;
     }
   }
@@ -160,7 +187,8 @@ export default {
   color: #31c27c;
 }
 
-.play_on{
-  color:#31c27c!important;
+.play_on {
+  color: #31c27c !important;
+  text-shadow:5px 2px 6px #000;
 }
 </style>
