@@ -3,12 +3,11 @@
     <div id="lyrics_view">
       <div
         id="lyrics_content"
-        :style="'top:'+(content_top)+'px'"
+        :style="'top:'+(auto_scroll_flag?(-58*(now_lyric_index-2)):content_top)+'px'"
         v-on:mousedown="mouse_down"
         @mouseup="mouse_up"
         @mousemove="mouse_move"
         @mouseleave="mouse_leave"
-
       >
         <p
           :class="'lyric_item '+((index==now_lyric_index)?'play_on':'')"
@@ -27,13 +26,13 @@ export default {
   data: function() {
     return {
       lyricArray: [
-         //歌词数据
+        //歌词数据
         {
           time: 0,
           content: ""
         }
       ],
-     
+      auto_scroll_flag: false,
       move_flag: false,
       content_top: 0,
       move_current: undefined,
@@ -47,8 +46,8 @@ export default {
         _regBy: /\[by:(.+)\]/,
         _regOffset: /\[offset:.+\]/,
         _regTime: /\[\d+:\d+(\.\d+)?\]/g
-      },
-      now_lyric_index:1
+      }
+      // now_lyric_index:1
     };
   },
   created: function() {
@@ -69,7 +68,7 @@ export default {
             data = respone.data.split("\r\n");
           }
           let that = this;
-          data.forEach((el) => {
+          data.forEach(el => {
             let time = el.match(that.lyric_reg._regTime);
             if (time != null) {
               that.lyricArray.push({
@@ -89,11 +88,17 @@ export default {
     mouse_down: function(e) {
       // e.currentTarget 获取绑定事件的元素
       this.move_flag = true;
+      this.auto_scroll_flag=false;
       this.move_current = e.clientY;
       window.console.log(e.clientY);
     },
     mouse_up: function() {
       this.move_flag = false;
+      setTimeout(() => {
+        if(!this.auto_scroll_flag){
+          this.auto_scroll_flag=true;
+        }
+      }, 1000);
     },
     mouse_leave: function() {
       if (!this.move_flag) {
@@ -142,6 +147,9 @@ export default {
         top = -this.lyric_offset_height;
       }
       return top;
+    },
+    now_lyric_index: function() {
+      return 1;
     }
   }
 };
@@ -189,6 +197,6 @@ export default {
 
 .play_on {
   color: #31c27c !important;
-  text-shadow:5px 2px 6px #000;
+  text-shadow: 5px 2px 6px #000;
 }
 </style>
