@@ -58,7 +58,7 @@ export default {
       //获取歌词文件，渲染到页面
       this.Axios({
         methods: "get",
-        url: "http://182.92.232.131:8001/static/lrc/kxmrg.lrc"
+        url: "http://localhost:8001/static/lrc/kxmrg.lrc"
       })
         .then(respone => {
           let data;
@@ -134,6 +134,10 @@ export default {
       time = time[0] * 60 + parseFloat(time[1]);
       console.log(time);
       return time;
+    },
+    getTop:function (top) {
+      console.log(top);
+      
     }
   },
   computed: {
